@@ -1,0 +1,32 @@
+# dsh-d1 bundle patch: inserts the Cloudflare D1 tool plugin row into a profile.
+# The row is keyed by id `d1`; override its `config` from your own profile's
+# cordis.patch.yml with an id-targeted entry (do NOT add a second `insert` —
+# that would load the plugin twice). If config is missing the plugin still
+# loads (read-only, zero databases) and d1_health reports "no databases
+# configured".
+#
+# The Cloudflare API token is NEVER read from config. Provide it via the
+# environment: CLOUDFLARE_API_TOKEN (global) or DSH_D1_TOKEN_<NAME> (per db;
+# NAME is the database name uppercased, non-alphanumerics replaced by `_`).
+#
+# Example (your profile's cordis.patch.yml):
+#   - id: d1
+#     name: 'dsh-d1'
+#     config:
+#       accountId: 'your-32-hex-cloudflare-account-id'   # or set CLOUDFLARE_ACCOUNT_ID in env
+#       databases:
+#         - name: prod
+#           databaseId: 00000000-0000-0000-0000-000000000000
+#       maxRows: 1000        # d1_query row cap (1-10000; larger values are clamped)
+#       readOnly: true       # default true — d1_exec disabled; flip to false to allow writes
+#       writeApproval: true  # writes prompt for approval first (default true)
+#       queryTimeoutMs: 60000   # 5 s – 10 min (clamped)
+#       execTimeoutMs: 120000   # 5 s – 10 min (clamped)
+#
+- insert:
+    - id: d1
+      name: 'dsh-d1'
+      config:
+        readOnly: true
+        writeApproval: true
+        maxRows: 1000
