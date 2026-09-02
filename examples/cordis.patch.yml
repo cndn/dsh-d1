@@ -1,0 +1,23 @@
+# Example profile override for dsh-d1. Copy the entry into your dsh profile's
+# cordis.patch.yml (e.g. ~/.dsh/profiles/web/cordis.patch.yml). The package's own
+# bundle patch already inserts the `d1` row; this id-targeted entry replaces its
+# config. Do not add another `- insert:` for `d1` or the plugin loads twice.
+#
+# Tokens are never written here. Export them before starting dsh:
+#   export CLOUDFLARE_API_TOKEN='...'        # used for every database, or
+#   export DSH_D1_TOKEN_PROD='...'           # per-database override (name uppercased,
+#                                            # non-alphanumerics replaced by "_")
+- id: d1
+  name: 'dsh-d1'
+  config:
+    accountId: '00000000000000000000000000000000'   # your Cloudflare account id (32 hex)
+    databases:
+      - name: prod                                  # the name the agent uses
+        databaseId: 00000000-0000-0000-0000-000000000000
+      - name: analytics
+        databaseId: 11111111-1111-1111-1111-111111111111
+    maxRows: 1000           # d1_query row cap (1–10000)
+    readOnly: true          # keep true for a read-only agent; false enables d1_exec
+    writeApproval: true     # every d1_exec must be approved interactively
+    queryTimeoutMs: 60000   # 5 s – 10 min
+    execTimeoutMs: 120000   # 5 s – 10 min
