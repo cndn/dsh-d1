@@ -1,5 +1,7 @@
 # dsh-d1
 
+[![ci](https://github.com/cndn/dsh-d1/actions/workflows/ci.yml/badge.svg)](https://github.com/cndn/dsh-d1/actions/workflows/ci.yml)
+
 **Cloudflare D1 (serverless SQLite over HTTP) tools for the [DeepSeek Harness](https://www.npmjs.com/package/@deepseek-ai/dsh) — read-only first.**
 
 D1 is Cloudflare's serverless SQLite. Unlike a normal database it has **no TCP socket** — it is reached only over the Cloudflare REST API. So the excellent [`dsh-sql`](https://github.com/STARDUSTLC666/dsh-sql) plugin (which pools TCP connections to SQLite/MySQL/Postgres) can't talk to it. `dsh-d1` fills that gap: it speaks the D1 HTTP API directly, giving a dsh agent six tools to introspect and query any D1 database you configure.
