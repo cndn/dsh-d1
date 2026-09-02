@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: package contents must not include sources or tests
+        run: |
+          npm pack --dry-run --json | node -e '
+            const [pkg] = JSON.parse(require("fs").readFileSync(0, "utf8"))
+            const bad = pkg.files.map((f) => f.path).filter((p) => p.startsWith("src/") || p.startsWith("test/"))
+            if (bad.length) { console.error("unexpected files in tarball:", bad); process.exit(1) }
+            console.log(pkg.files.length + " files, " + pkg.size + " bytes")
+          '
