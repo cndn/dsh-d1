@@ -1,0 +1,56 @@
+# Publishes dsh-d1 to npm at the version committed in package.json.
+#
+# Trigger: push a tag `v<version>` matching package.json, or run it by hand
+# (workflow_dispatch) with dry_run to build and validate without publishing.
+# Auth: the NPM_TOKEN repository secret (NODE_AUTH_TOKEN). id-token: write lets
+# npm attach provenance to the published tarball.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build + validate only (no publish)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Tag must match package.json version
+        if: github.ref_type == 'tag'
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "v${v}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} does not match package.json version ${v}"
+            exit 1
+          fi
+      - name: Publish
+        if: ${{ !inputs.dry_run }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::error::NPM_TOKEN secret is not set on this repository"
+            exit 1
+          fi
+          npm publish --access public --provenance

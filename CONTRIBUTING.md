@@ -46,6 +46,9 @@ meaning. Backslash is not an escape in SQLite; doubled quotes are.
 ## Commits and releases
 
 Conventional Commits with a lowercase subject (`fix: …`, `feat: …`, `docs: …`).
-Bump `version` in `package.json`, add a `CHANGELOG.md` entry, tag `vX.Y.Z`.
-`prepublishOnly` builds `lib/`; the npm tarball ships only `lib/`, the bundle
-patch, README and LICENSE.
+Bump `version` in `package.json`, add a `CHANGELOG.md` entry, commit, then push
+a matching tag (`vX.Y.Z`). `.github/workflows/release.yml` re-runs typecheck and
+the tests (including the leak gate), checks the tag against `package.json`, and
+publishes to npm with provenance using the `NPM_TOKEN` repository secret;
+`workflow_dispatch` with `dry_run` validates without publishing. The npm tarball
+ships only `lib/`, the bundle patch, README and LICENSE.
