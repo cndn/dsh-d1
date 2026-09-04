@@ -1,6 +1,7 @@
 # dsh-d1
 
 [![ci](https://github.com/cndn/dsh-d1/actions/workflows/ci.yml/badge.svg)](https://github.com/cndn/dsh-d1/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dsh-d1)](https://www.npmjs.com/package/dsh-d1)
 
 **Cloudflare D1 (serverless SQLite over HTTP) tools for the [DeepSeek Harness](https://www.npmjs.com/package/@deepseek-ai/dsh) — read-only first.**
 
@@ -23,20 +24,24 @@ Every tool forwards the harness's cancellation signal to the D1 request, so a ca
 
 ## Install
 
-The profile directory is a pnpm workspace root, so pnpm needs `-w`:
+From npm. The profile directory is a pnpm workspace root, so pnpm needs `-w`:
 
 ```bash
 dsh plugin --profile web add -w dsh-d1
 ```
 
-Or during development, from a local checkout:
+The npm tarball ships `lib/` prebuilt, so there is no build step to approve. The
+package is published from CI with [provenance](https://docs.npmjs.com/generating-provenance-statements);
+`npm audit signatures` verifies the attestation.
+
+During development, from a local checkout:
 
 ```bash
 cd dsh-d1 && npm install && npm run build
 dsh plugin --profile web add -w /absolute/path/to/dsh-d1
 ```
 
-Installing straight from git (`github:cndn/dsh-d1`) builds `lib/` through the `prepare` script. pnpm 10 blocks that build until you allow it once: copy the `onlyBuiltDependencies` entry it prints (pinned to the git commit) into the profile's `pnpm-workspace.yaml`, then re-run the install.
+Installing straight from git (`github:cndn/dsh-d1`) builds `lib/` through the `prepare` script instead. pnpm 10 blocks that build until you allow it once: copy the `onlyBuiltDependencies` entry it prints (pinned to the git commit) into the profile's `pnpm-workspace.yaml`, then re-run the install.
 
 ## Configure
 
